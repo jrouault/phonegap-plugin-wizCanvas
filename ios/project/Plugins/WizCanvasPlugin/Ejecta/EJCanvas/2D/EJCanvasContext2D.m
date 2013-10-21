@@ -58,6 +58,20 @@ const EJCompositeOperationFunc EJCompositeOperationFuncs[] = {
 		textureFilter = GL_LINEAR;
 		msaaEnabled = NO;
 		msaaSamples = 2;
+        
+        userMatrix = (GLfloat *) malloc(16 * sizeof(GLfloat));
+        for(int i = 0; i < 4; ++i) {
+            for(int j = 0; j < 4; ++j) {
+                if(i == j) {
+                    userMatrix[i * 4 + j] = 1.0;
+                    identityMatrix[i * 4 + j] = 1.0;
+                } else {
+                    userMatrix[i * 4 + j] = 0.0;
+                    identityMatrix[i * 4 + j] = 0.0;
+                }
+            }
+        }
+        modelViewProjection = identityMatrix;
 	}
 	return self;
 }
@@ -169,7 +183,7 @@ const EJCompositeOperationFunc EJCompositeOperationFuncs[] = {
 
 - (void)bindVertexBuffer {	
 	glEnableVertexAttribArray(kEJGLProgram2DAttributePos);
-	glVertexAttribPointer(kEJGLProgram2DAttributePos, 2, GL_FLOAT, GL_FALSE,
+	glVertexAttribPointer(kEJGLProgram2DAttributePos, 3, GL_FLOAT, GL_FALSE,
 		sizeof(EJVertex), (char *)vertexBuffer + offsetof(EJVertex, pos));
 	
 	glEnableVertexAttribArray(kEJGLProgram2DAttributeUV);
@@ -195,14 +209,14 @@ const EJCompositeOperationFunc EJCompositeOperationFuncs[] = {
 	
 	[self bindVertexBuffer];
 	
-	if( stencilBuffer ) {
+	if(stencilBuffer) {
 		glEnable(GL_DEPTH_TEST);
 	}
 	else {
 		glDisable(GL_DEPTH_TEST);
 	}
 	
-	if( state->clipPath ) {
+	if(state->clipPath) {
 		glDepthFunc(GL_EQUAL);
 	}
 	else {
@@ -242,13 +256,27 @@ const EJCompositeOperationFunc EJCompositeOperationFuncs[] = {
 }
 
 - (void)setProgram:(EJGLProgram2D *)newProgram {
-	if( currentProgram == newProgram ) { return; }
+    
+    //TODO: Create a special class for vertex shader using mvp in order to:
+    //- don't have to set the mvp at each call of this function
+    //- increase performance for 2d drawing
+    
+	if(currentProgram == newProgram) {
+        return;
+    }
 	
 	[self flushBuffers];
 	currentProgram = newProgram;
 	
 	glUseProgram(currentProgram.program);
 	glUniform2f(currentProgram.screen, width, height * (upsideDown ? -1 : 1));
+    
+    //If the program is using mvp, set mvp, otherwise set the identity matrix for 2D
+    if(currentProgram == sharedGLContext.glProgram2DMVPTexture) {
+        glUniformMatrix4fv(currentProgram.mvp, 1, 0, modelViewProjection);
+    } else {
+        glUniformMatrix4fv(currentProgram.mvp, 1, 0, identityMatrix);
+    }
 }
 
 - (void)pushTriX1:(float)x1 y1:(float)y1 x2:(float)x2 y2:(float)y2
@@ -260,14 +288,14 @@ const EJCompositeOperationFunc EJCompositeOperationFuncs[] = {
 		[self flushBuffers];
 	}
 	
-	EJVector2 d1 = { x1, y1 };
-	EJVector2 d2 = { x2, y2 };
-	EJVector2 d3 = { x3, y3 };
+	EJVector3 d1 = { x1, y1, 0.0 };
+	EJVector3 d2 = { x2, y2, 0.0 };
+	EJVector3 d3 = { x3, y3, 0.0 };
 	
 	if( !CGAffineTransformIsIdentity(transform) ) {
-		d1 = EJVector2ApplyTransform( d1, transform );
-		d2 = EJVector2ApplyTransform( d2, transform );
-		d3 = EJVector2ApplyTransform( d3, transform );
+		d1 = EJVector3ApplyTransform( d1, transform );
+		d2 = EJVector3ApplyTransform( d2, transform );
+		d3 = EJVector3ApplyTransform( d3, transform );
 	}
 	
 	EJVertex *vb = &vertexBuffer[vertexBufferIndex];
@@ -285,21 +313,26 @@ const EJCompositeOperationFunc EJCompositeOperationFuncs[] = {
 	if( vertexBufferIndex >= vertexBufferSize - 6 ) {
 		[self flushBuffers];
 	}
+    
+    EJVector3 d1 = { v1.x, v1.y, 0.0 };
+	EJVector3 d2 = { v2.x, v2.y, 0.0 };
+	EJVector3 d3 = { v3.x, v3.y, 0.0 };
+	EJVector3 d4 = { v4.x, v4.y, 0.0 };
 	
 	if( !CGAffineTransformIsIdentity(transform) ) {
-		v1 = EJVector2ApplyTransform( v1, transform );
-		v2 = EJVector2ApplyTransform( v2, transform );
-		v3 = EJVector2ApplyTransform( v3, transform );
-		v4 = EJVector2ApplyTransform( v4, transform );
+		d1 = EJVector3ApplyTransform( d1, transform );
+		d2 = EJVector3ApplyTransform( d2, transform );
+		d3 = EJVector3ApplyTransform( d3, transform );
+		d4 = EJVector3ApplyTransform( d4, transform );
 	}
 	
 	EJVertex *vb = &vertexBuffer[vertexBufferIndex];
-	vb[0] = (EJVertex) { v1, {0, 0}, color };
-	vb[1] = (EJVertex) { v2, {0, 0}, color };
-	vb[2] = (EJVertex) { v3, {0, 0}, color };
-	vb[3] = (EJVertex) { v2, {0, 0}, color };
-	vb[4] = (EJVertex) { v3, {0, 0}, color };
-	vb[5] = (EJVertex) { v4, {0, 0}, color };
+	vb[0] = (EJVertex) { d1, {0, 0}, color };
+	vb[1] = (EJVertex) { d2, {0, 0}, color };
+	vb[2] = (EJVertex) { d3, {0, 0}, color };
+	vb[3] = (EJVertex) { d2, {0, 0}, color };
+	vb[4] = (EJVertex) { d3, {0, 0}, color };
+	vb[5] = (EJVertex) { d4, {0, 0}, color };
 	
 	vertexBufferIndex += 6;
 }
@@ -312,16 +345,16 @@ const EJCompositeOperationFunc EJCompositeOperationFuncs[] = {
 		[self flushBuffers];
 	}
 		
-	EJVector2 d11 = {x, y};
-	EJVector2 d21 = {x+w, y};
-	EJVector2 d12 = {x, y+h};
-	EJVector2 d22 = {x+w, y+h};
+	EJVector3 d11 = {x, y, 0.0};
+	EJVector3 d21 = {x+w, y, 0.0};
+	EJVector3 d12 = {x, y+h, 0.0};
+	EJVector3 d22 = {x+w, y+h, 0.0};
 	
 	if( !CGAffineTransformIsIdentity(transform) ) {
-		d11 = EJVector2ApplyTransform( d11, transform );
-		d21 = EJVector2ApplyTransform( d21, transform );
-		d12 = EJVector2ApplyTransform( d12, transform );
-		d22 = EJVector2ApplyTransform( d22, transform );
+		d11 = EJVector3ApplyTransform( d11, transform );
+		d21 = EJVector3ApplyTransform( d21, transform );
+		d12 = EJVector3ApplyTransform( d12, transform );
+		d22 = EJVector3ApplyTransform( d22, transform );
 	}
 	
 	EJVertex *vb = &vertexBuffer[vertexBufferIndex];
@@ -394,16 +427,16 @@ const EJCompositeOperationFunc EJCompositeOperationFuncs[] = {
 		}
 		
 		// Vertex coordinates
-		EJVector2 d11 = {x, y};
-		EJVector2 d21 = {x+w, y};
-		EJVector2 d12 = {x, y+h};
-		EJVector2 d22 = {x+w, y+h};
+		EJVector3 d11 = {x, y, 0.0};
+		EJVector3 d21 = {x+w, y, 0.0};
+		EJVector3 d12 = {x, y+h, 0.0};
+		EJVector3 d22 = {x+w, y+h, 0.0};
 		
 		if( !CGAffineTransformIsIdentity(transform) ) {
-			d11 = EJVector2ApplyTransform( d11, transform );
-			d21 = EJVector2ApplyTransform( d21, transform );
-			d12 = EJVector2ApplyTransform( d12, transform );
-			d22 = EJVector2ApplyTransform( d22, transform );
+			d11 = EJVector3ApplyTransform( d11, transform );
+			d21 = EJVector3ApplyTransform( d21, transform );
+			d12 = EJVector3ApplyTransform( d12, transform );
+			d22 = EJVector3ApplyTransform( d22, transform );
 		}
 
 		EJVertex *vb = &vertexBuffer[vertexBufferIndex];
@@ -480,16 +513,16 @@ const EJCompositeOperationFunc EJCompositeOperationFuncs[] = {
 		[self flushBuffers];
 	}
 	
-	EJVector2 d11 = {x, y};
-	EJVector2 d21 = {x+w, y};
-	EJVector2 d12 = {x, y+h};
-	EJVector2 d22 = {x+w, y+h};
+	EJVector3 d11 = {x, y, 0.0};
+	EJVector3 d21 = {x+w, y, 0.0};
+	EJVector3 d12 = {x, y+h, 0.0};
+	EJVector3 d22 = {x+w, y+h, 0.0};
 	
 	if( !CGAffineTransformIsIdentity(transform) ) {
-		d11 = EJVector2ApplyTransform( d11, transform );
-		d21 = EJVector2ApplyTransform( d21, transform );
-		d12 = EJVector2ApplyTransform( d12, transform );
-		d22 = EJVector2ApplyTransform( d22, transform );
+		d11 = EJVector3ApplyTransform( d11, transform );
+		d21 = EJVector3ApplyTransform( d21, transform );
+		d12 = EJVector3ApplyTransform( d12, transform );
+		d22 = EJVector3ApplyTransform( d22, transform );
 	}
 
 	EJVertex *vb = &vertexBuffer[vertexBufferIndex];
@@ -500,6 +533,32 @@ const EJCompositeOperationFunc EJCompositeOperationFuncs[] = {
 	vb[3] = (EJVertex) { d21, {tx+tw, ty}, color };	// top right
 	vb[4] = (EJVertex) { d12, {tx, ty+th}, color };	// bottom left
 	vb[5] = (EJVertex) { d22, {tx+tw, ty+th}, color };	// bottom right
+	
+	vertexBufferIndex += 6;
+}
+
+/* Extension of the Canvas API
+   Pushes vertexes defining a texture on a rectangle in 3D
+   Difference is that you can specify a third dimension (depth here) which is useful if you modify the 3D perspective of the camera
+ */
+- (void)push3DTexturedRectX1:(float)x1 y1:(float)y1 z1:(float)z1 x2:(float)x2 y2:(float)y2 z2:(float)z2 x3:(float)x3 y3:(float)y3 z3:(float)z3 x4:(float)x4 y4:(float)y4 z4:(float)z4 color:(EJColorRGBA)color {
+    if( vertexBufferIndex >= vertexBufferSize - 6 ) {
+		[self flushBuffers];
+	}
+	
+	EJVector3 d11 = {x1, y1, z1};
+	EJVector3 d21 = {x2, y2, z2};
+	EJVector3 d12 = {x3, y3, z3};
+	EJVector3 d22 = {x4, y4, z4};
+	
+	EJVertex *vb = &vertexBuffer[vertexBufferIndex];
+	vb[0] = (EJVertex) { d11, {0.0, 0.0}, color };	// top left
+	vb[1] = (EJVertex) { d21, {1.0, 0.0}, color };	// top right
+	vb[2] = (EJVertex) { d12, {0.0, 1.0}, color };	// bottom left
+    
+	vb[3] = (EJVertex) { d21, {1.0, 0.0}, color };	// top right
+	vb[4] = (EJVertex) { d12, {0.0, 1.0}, color };	// bottom left
+	vb[5] = (EJVertex) { d22, {1.0, 1.0}, color };	// bottom right
 	
 	vertexBufferIndex += 6;
 }
@@ -635,6 +694,34 @@ const EJCompositeOperationFunc EJCompositeOperationFuncs[] = {
 	path.transform = state->transform;
 }
 
+/* Extension of the Canvas API
+ Sets the Model-View-Projection matrix to add 3D perspective used in MVPVertex vertex shader
+ */
+- (void)setMVPM11:(float)m11 m12:(float)m12 m13:(float)m13 m21:(float)m21 m22:(float)m22 m23:(float)m23 m31:(float)m31 m32:(float)m32 m33:(float)m33 dx:(float)dx dy:(float)dy dz:(float)dz {
+    userMatrix[0] = m11;
+    userMatrix[1] = m21;
+    userMatrix[2] = m31;
+    userMatrix[3] = dx;
+    userMatrix[4] = m12;
+    userMatrix[5] = m22;
+    userMatrix[6] = m32;
+    userMatrix[7] = dy;
+    userMatrix[8] = m13;
+    userMatrix[9] = m23;
+    userMatrix[10] = m33;
+    userMatrix[11] = dz;
+    modelViewProjection = userMatrix;
+    glUniformMatrix4fv(sharedGLContext.glProgram2DMVPTexture.mvp, 1, 0, modelViewProjection);
+}
+
+/* Extension of the Canvas API
+ Resets the Model-View-Projection matrix to an identity matrix to go back to 2D perspective in MVPVertex vertex shader
+ */
+- (void)resetMVP {
+    modelViewProjection = identityMatrix;
+    glUniformMatrix4fv(sharedGLContext.glProgram2DMVPTexture.mvp, 1, 0, modelViewProjection);
+}
+
 - (void)drawImage:(EJTexture *)texture sx:(float)sx sy:(float)sy sw:(float)sw sh:(float)sh dx:(float)dx dy:(float)dy dw:(float)dw dh:(float)dh {
 	
 	float tw = texture.width;
@@ -644,6 +731,16 @@ const EJCompositeOperationFunc EJCompositeOperationFuncs[] = {
 	[self setTexture:texture];
 	[self pushTexturedRectX:dx y:dy w:dw h:dh tx:sx/tw ty:sy/th tw:sw/tw th:sh/th
 		color:EJCanvasBlendWhiteColor(state) withTransform:state->transform];
+}
+
+/* Extension of the Canvas API
+ Draws an image at the specified vertexes position
+ Difference is that you can specify a third dimension (depth here) which is useful if you modify the 3D perspective
+ */
+- (void)drawImage3D:(EJTexture *)texture x1:(float)x1 y1:(float)y1 z1:(float)z1 x2:(float)x2 y2:(float)y2 z2:(float)z2 x3:(float)x3 y3:(float)y3 z3:(float)z3 x4:(float)x4 y4:(float)y4 z4:(float)z4 {
+	[self setProgram:sharedGLContext.glProgram2DMVPTexture];
+	[self setTexture:texture];
+	[self push3DTexturedRectX1:x1 y1:y1 z1:z1 x2:x2 y2:y2 z2:z2 x3:x3 y3:y3 z3:z3 x4:x4 y4:y4 z4:z4 color:EJCanvasBlendWhiteColor(state)];
 }
 
 - (void)fillRectX:(float)x y:(float)y w:(float)w h:(float)h {

@@ -14,7 +14,11 @@ typedef struct {
 } EJVector2;
 
 typedef struct {
-	EJVector2 pos;
+	float x, y, z;
+} EJVector3;
+
+typedef struct {
+	EJVector3 pos;
 	EJVector2 uv;
 	EJColorRGBA color;
 } EJVertex;
@@ -77,6 +81,15 @@ static inline EJVector2 EJVector2ApplyTransform(EJVector2 p, CGAffineTransform t
 	EJVector2 pt = {
 		t.a * p.x + t.c * p.y + t.tx,
 		t.b * p.x + t.d * p.y + t.ty
+	};
+	return pt;
+}
+
+static inline EJVector3 EJVector3ApplyTransform(EJVector3 p, CGAffineTransform t) {
+	EJVector3 pt = {
+		t.a * p.x + t.c * p.y + t.tx,
+		t.b * p.x + t.d * p.y + t.ty,
+        p.z
 	};
 	return pt;
 }

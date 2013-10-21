@@ -12,6 +12,5 @@ void main() {
 	vColor = color;
 	vUv = uv;
 	
-    gl_Position = mvp * vec4(pos.xy * (vec2(2,2)/screen) - clamp(screen,-1.0,1.0), pos.z, 1.0);
-	//gl_Position = vec4(pos * (vec2(2,2)/screen) - clamp(screen,-1.0,1.0), 0.0, 1.0);
+    gl_Position = mvp * vec4(pos.xyz, 1.0);
 }

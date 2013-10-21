@@ -128,10 +128,14 @@ static inline EJColorRGBA EJCanvasBlendStrokeColor( EJCanvasState *state ) {
 	float backingStoreRatio;
 	
 	NSCache *fontCache;
-
-    WizCanvasView *scriptView;
+	
+	WizCanvasView *scriptView;
 	EJGLProgram2D *currentProgram;
 	EJSharedOpenGLContext *sharedGLContext;
+    
+    GLfloat *modelViewProjection;
+    GLfloat *userMatrix;
+    GLfloat identityMatrix[16];
 }
 
 - (id)initWithScriptView:(WizCanvasView *)scriptViewp width:(short)widthp height:(short)heightp;
@@ -178,7 +182,10 @@ static inline EJColorRGBA EJCanvasBlendStrokeColor( EJCanvasState *state ) {
 - (void)scaleX:(float)x y:(float)y;
 - (void)transformM11:(float)m11 m12:(float)m12 m21:(float)m21 m22:(float)m2 dx:(float)dx dy:(float)dy;
 - (void)setTransformM11:(float)m11 m12:(float)m12 m21:(float)m21 m22:(float)m2 dx:(float)dx dy:(float)dy;
+- (void)setMVPM11:(float)m11 m12:(float)m12 m13:(float)m13 m21:(float)m21 m22:(float)m22 m23:(float)m23 m31:(float)m31 m32:(float)m32 m33:(float)m33 dx:(float)dx dy:(float)dy dz:(float)dz;
+- (void)resetMVP;
 - (void)drawImage:(EJTexture *)image sx:(float)sx sy:(float)sy sw:(float)sw sh:(float)sh dx:(float)dx dy:(float)dy dw:(float)dw dh:(float)dh;
+- (void)drawImage3D:(EJTexture *)texture x1:(float)x1 y1:(float)y1 z1:(float)z1 x2:(float)x2 y2:(float)y2 z2:(float)z2 x3:(float)x3 y3:(float)y3 z3:(float)z3 x4:(float)x4 y4:(float)y4 z4:(float)z4;
 - (void)fillRectX:(float)x y:(float)y w:(float)w h:(float)h;
 - (void)strokeRectX:(float)x y:(float)y w:(float)w h:(float)h;
 - (void)clearRectX:(float)x y:(float)y w:(float)w h:(float)h;

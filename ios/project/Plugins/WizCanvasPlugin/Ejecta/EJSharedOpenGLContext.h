@@ -10,6 +10,7 @@
 	EJGLProgram2D *glProgram2DAlphaTexture;
 	EJGLProgram2D *glProgram2DPattern;
 	EJGLProgram2DRadialGradient *glProgram2DRadialGradient;
+    EJGLProgram2D *glProgram2DMVPTexture;
 	
 	EAGLContext *glContext2D;
 	EAGLSharegroup *glSharegroup;
@@ -23,6 +24,7 @@
 @property (nonatomic, readonly) EJGLProgram2D *glProgram2DAlphaTexture;
 @property (nonatomic, readonly) EJGLProgram2D *glProgram2DPattern;
 @property (nonatomic, readonly) EJGLProgram2DRadialGradient *glProgram2DRadialGradient;
+@property (nonatomic, readonly) EJGLProgram2D *glProgram2DMVPTexture;
 
 @property (nonatomic, readonly) EAGLContext *glContext2D;
 @property (nonatomic, readonly) EAGLSharegroup *glSharegroup;

@@ -4,6 +4,7 @@
 
 @synthesize program;
 @synthesize screen;
+@synthesize mvp;
 
 - (id)initWithVertexShader:(NSString *)vertexShaderFile fragmentShader:(NSString *)fragmentShaderFile {
 	if( self = [super init] ) {
@@ -42,6 +43,7 @@
 
 - (void)getUniforms {
 	screen = glGetUniformLocation(program, "screen");
+    mvp = glGetUniformLocation(program, "mvp");
 }
 
 + (GLint)compileShaderFile:(NSString *)file type:(GLenum)type {

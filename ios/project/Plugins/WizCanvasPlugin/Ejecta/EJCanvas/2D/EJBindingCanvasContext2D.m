@@ -226,6 +226,27 @@ EJ_BIND_FUNCTION(setTransform, ctx, argc, argv) {
 	return NULL;
 }
 
+/** Extension of the Canvas API
+ Sets the matrix Model-View-Projection to be used by the MVPVertex vertex shader
+ In short: sets the camera matrix to add 3D perspective
+ WARNING: Does not work in browser!
+ */
+EJ_BIND_FUNCTION(setMVP, ctx, argc, argv) {
+	EJ_UNPACK_ARGV(float m11, float m12, float m13, float m21, float m22, float m23, float m31, float m32, float m33, float dx, float dy, float dz);
+	[renderingContext setMVPM11:m11 m12:m12 m13:m13 m21:m21 m22:m22 m23:m23 m31:m31 m32:m32 m33:m33 dx:dx dy:dy dz:dz];
+	return NULL;
+}
+
+/** Extension of the Canvas API
+ Resets the matrix Model-View-Projection to be used by the MVPVertex vertex shader to an identity matrix
+ In short: sets the camera matrix to don't have 3D perspective
+ WARNING: Does not work in browser!
+ */
+EJ_BIND_FUNCTION(resetMVP, ctx, argc, argv) {
+	[renderingContext resetMVP];
+	return NULL;
+}
+
 EJ_BIND_FUNCTION(drawImage, ctx, argc, argv) {
 	if( argc < 3 ) { return NULL; }
 	
@@ -272,6 +293,44 @@ EJ_BIND_FUNCTION(drawImage, ctx, argc, argv) {
 	
 	[renderingContext drawImage:image sx:sx sy:sy sw:sw sh:sh dx:dx dy:dy dw:dw dh:dh];
 	return NULL;
+}
+
+/** Extension of the Canvas API
+ Draws an image in 3D depending on the vertex position in the world
+ If the image was facing the camera, the points has to be given in this order: top-left, top-right, bottom-left, bottom-right of the screen
+
+       SCREEN
+ ------------------
+ |                |
+ | pt1--------pt2 |
+ |  |          |  |
+ |  |          |  |
+ |  |          |  |
+ |  |          |  |
+ |  |          |  |
+ | pt3--------pt4 |
+ |                |
+ ------------------
+ 
+ WARNING: Does not work in browser!
+ */
+EJ_BIND_FUNCTION(drawImage3D, ctx, argc, argv) {
+	if( argc != 13 ) { return NULL; }
+
+	// Set the currentRenderingContext before getting the texture, so we can
+	// correctly treat the case where the currentRenderingContext is the same
+	// as the image being drawn; i.e. a texture canvas drawing into itself.
+	scriptView.currentRenderingContext = renderingContext;
+	
+	NSObject<EJDrawable> *drawable = (NSObject<EJDrawable> *)JSObjectGetPrivate((JSObjectRef)argv[0]);
+	EJTexture *image = drawable.texture;
+
+    float x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4;
+    
+    EJ_UNPACK_ARGV_OFFSET(1, x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4);
+
+    [renderingContext drawImage3D:image x1:x1 y1:y1 z1:z1 x2:x2 y2:y2 z2:z2 x3:x3 y3:y3 z3:z3 x4:x4 y4:y4 z4:z4];
+    return NULL;
 }
 
 EJ_BIND_FUNCTION(fillRect, ctx, argc, argv) {

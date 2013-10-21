@@ -7,6 +7,7 @@
 @synthesize glProgram2DAlphaTexture;
 @synthesize glProgram2DPattern;
 @synthesize glProgram2DRadialGradient;
+@synthesize glProgram2DMVPTexture;
 @synthesize glContext2D;
 @synthesize glSharegroup;
 
@@ -48,19 +49,20 @@ static EJSharedOpenGLContext *sharedOpenGLContext;
 	return vertexBuffer;
 }
 
-#define EJ_GL_PROGRAM_GETTER(TYPE, NAME) \
+#define EJ_GL_PROGRAM_GETTER(TYPE, NAME, VERTEX_SHADER, FRAGMENT_SHADER) \
 	- (TYPE *)glProgram2D##NAME { \
 		if( !glProgram2D##NAME ) { \
-			glProgram2D##NAME = [[TYPE alloc] initWithVertexShader:@"Vertex.vsh" fragmentShader: @ #NAME @".fsh"]; \
+			glProgram2D##NAME = [[TYPE alloc] initWithVertexShader:@ #VERTEX_SHADER @".vsh" fragmentShader: @ #FRAGMENT_SHADER @".fsh"]; \
 		} \
 	return glProgram2D##NAME; \
 	}
 
-EJ_GL_PROGRAM_GETTER(EJGLProgram2D, Flat);
-EJ_GL_PROGRAM_GETTER(EJGLProgram2D, Texture);
-EJ_GL_PROGRAM_GETTER(EJGLProgram2D, AlphaTexture);
-EJ_GL_PROGRAM_GETTER(EJGLProgram2D, Pattern);
-EJ_GL_PROGRAM_GETTER(EJGLProgram2DRadialGradient, RadialGradient);
+EJ_GL_PROGRAM_GETTER(EJGLProgram2D, Flat, Vertex, Flat);
+EJ_GL_PROGRAM_GETTER(EJGLProgram2D, Texture, Vertex, Texture);
+EJ_GL_PROGRAM_GETTER(EJGLProgram2D, AlphaTexture, Vertex, AlphaTexture);
+EJ_GL_PROGRAM_GETTER(EJGLProgram2D, Pattern, Vertex, Pattern);
+EJ_GL_PROGRAM_GETTER(EJGLProgram2DRadialGradient, RadialGradient, Vertex, RadialGradient);
+EJ_GL_PROGRAM_GETTER(EJGLProgram2D, MVPTexture, MVPVertex, Texture);
 
 #undef EJ_GL_PROGRAM_GETTER
 
