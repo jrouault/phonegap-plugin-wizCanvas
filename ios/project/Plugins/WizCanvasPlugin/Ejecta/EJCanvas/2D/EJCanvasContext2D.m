@@ -242,6 +242,32 @@ const EJCompositeOperationFunc EJCompositeOperationFuncs[] = {
 	[currentTexture bindWithFilter:textureFilter];
 }
 
+- (void)setMaterial:(EJBindingMaterial *)newMaterial {
+    // TODO: Possible optimization, if only the program has changed, only set the program, don't do the uniforms
+    if (currentMaterial == newMaterial && !newMaterial.hasChanged && currentProgram == newMaterial.program) {
+        return;
+    }
+
+    [self flushBuffers];
+    currentMaterial = newMaterial;
+    currentMaterial.hasChanged = false;
+
+    [self setProgram:currentMaterial.program];
+    
+    // TODO: Benchmark extracting value from pointer with NSValue
+    for (id key in currentMaterial.program.additionalUniforms) {
+        NSValue *value = [currentMaterial.uniforms objectForKey:key];
+        if (value) {
+            NSValue *locationValue = [currentMaterial.program.additionalUniforms objectForKey:key];
+            GLint *location;
+            [locationValue getValue:&location];
+            EJUniform *uniform;
+            [value getValue:&uniform];
+            uniform->glUniformFunction(*location, uniform->count, uniform->values);
+        }
+    }
+}
+
 - (void)setProgram:(EJGLProgram2D *)newProgram {
 	if( currentProgram == newProgram ) { return; }
 	
@@ -425,10 +451,15 @@ const EJCompositeOperationFunc EJCompositeOperationFuncs[] = {
 		EJGLProgram2DRadialGradient *gradientProgram = sharedGLContext.glProgram2DRadialGradient;
 		[self setProgram:gradientProgram];
 		
-		glUniform3f(gradientProgram.inner, gradient.p1.x, gradient.p1.y, gradient.r1);
-		EJVector2 dp = EJVector2Sub(gradient.p2, gradient.p1);
-		float dr = gradient.r2 - gradient.r1;
-		glUniform3f(gradientProgram.diff, dp.x, dp.y, dr);
+        for(NSString *key in gradientProgram.additionalUniforms) {
+            if([key isEqualToString:@"inner"]) {
+                glUniform3f([gradientProgram.additionalUniforms objectForKey:key], gradient.p1.x, gradient.p1.y, gradient.r1);
+            } else if([key isEqualToString:@"diff"]) {
+                EJVector2 dp = EJVector2Sub(gradient.p2, gradient.p1);
+                float dr = gradient.r2 - gradient.r1;
+                glUniform3f([gradientProgram.additionalUniforms objectForKey:key], dp.x, dp.y, dr);
+            }
+        }
 		
 		[self setTexture:gradient.texture];
 		[self pushTexturedRectX:x y:y w:w h:h tx:x ty:y tw:w th:h color:color withTransform:transform];
@@ -636,12 +667,16 @@ const EJCompositeOperationFunc EJCompositeOperationFuncs[] = {
 	path.transform = state->transform;
 }
 
-- (void)drawImage:(EJTexture *)texture sx:(float)sx sy:(float)sy sw:(float)sw sh:(float)sh dx:(float)dx dy:(float)dy dw:(float)dw dh:(float)dh {
+- (void)drawImage:(EJTexture *)texture sx:(float)sx sy:(float)sy sw:(float)sw sh:(float)sh dx:(float)dx dy:(float)dy dw:(float)dw dh:(float)dh material:(EJBindingMaterial *)material {
 	
 	float tw = texture.width;
 	float th = texture.height;
 	
-	[self setProgram:sharedGLContext.glProgram2DTexture];
+    if (material) {
+        [self setMaterial:material];
+    } else {
+        [self setProgram:sharedGLContext.glProgram2DTexture];
+    }
 	[self setTexture:texture];
 	[self pushTexturedRectX:dx y:dy w:dw h:dh tx:sx/tw ty:sy/th tw:sw/tw th:sh/th
 		color:EJCanvasBlendWhiteColor(state) withTransform:state->transform];

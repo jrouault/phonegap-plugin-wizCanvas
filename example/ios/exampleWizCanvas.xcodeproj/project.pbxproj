@@ -104,6 +104,9 @@
 		41CF5EC5178D0B8700001BC8 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41CF5EC4178D0B8700001BC8 /* CoreMotion.framework */; };
 		41DC39FD17E30F7A00FB6416 /* Cordova.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41DC39FC17E30F7A00FB6416 /* Cordova.framework */; };
 		41DC39FF17E3107E00FB6416 /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41DC39FE17E3107E00FB6416 /* AssetsLibrary.framework */; };
+		C62FAAAA1887C835004D57FD /* Tint.fsh in Resources */ = {isa = PBXBuildFile; fileRef = C634B8091887B2BE00F07CE1 /* Tint.fsh */; };
+		C62FAAAD1887CB17004D57FD /* EJGLProgram2DTint.m in Sources */ = {isa = PBXBuildFile; fileRef = C62FAAAC1887CB17004D57FD /* EJGLProgram2DTint.m */; };
+		C65F8D75187F8CFC00C3B536 /* EJBindingMaterial.m in Sources */ = {isa = PBXBuildFile; fileRef = C65F8D74187F8CFC00C3B536 /* EJBindingMaterial.m */; };
 		C6DAF3BD183DE79300F4F624 /* AlphaTexture.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 414DBF8C17F97CBD00DA3A50 /* AlphaTexture.fsh */; };
 		C6DAF3BE183DE79300F4F624 /* Flat.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 414DBF8D17F97CBD00DA3A50 /* Flat.fsh */; };
 		C6DAF3BF183DE79300F4F624 /* Pattern.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 414DBF8E17F97CBD00DA3A50 /* Pattern.fsh */; };
@@ -306,6 +309,11 @@
 		41DC39FC17E30F7A00FB6416 /* Cordova.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cordova.framework; path = CordovaLib/Cordova.framework; sourceTree = "<group>"; };
 		41DC39FE17E3107E00FB6416 /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
 		8D1107310486CEB800E47090 /* exampleWizCanvas-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "exampleWizCanvas-Info.plist"; path = "../exampleWizCanvas-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
+		C62FAAAB1887CB17004D57FD /* EJGLProgram2DTint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EJGLProgram2DTint.h; sourceTree = "<group>"; };
+		C62FAAAC1887CB17004D57FD /* EJGLProgram2DTint.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EJGLProgram2DTint.m; sourceTree = "<group>"; };
+		C634B8091887B2BE00F07CE1 /* Tint.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Tint.fsh; sourceTree = "<group>"; };
+		C65F8D73187F8CFC00C3B536 /* EJBindingMaterial.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EJBindingMaterial.h; sourceTree = "<group>"; };
+		C65F8D74187F8CFC00C3B536 /* EJBindingMaterial.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EJBindingMaterial.m; sourceTree = "<group>"; };
 		D4A0D8751607E02300AEF8BB /* Default-568h@2x~iphone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x~iphone.png"; sourceTree = "<group>"; };
 		F6FA7CDE16AFDEC200AD8974 /* iAd.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = iAd.framework; path = System/Library/Frameworks/iAd.framework; sourceTree = SDKROOT; };
 		F6FA7CE016AFDEF000AD8974 /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
@@ -524,6 +532,8 @@
 				414DBF6F17F97CBD00DA3A50 /* EJBindingCanvasPattern.m */,
 				414DBF7017F97CBD00DA3A50 /* EJBindingImageData.h */,
 				414DBF7117F97CBD00DA3A50 /* EJBindingImageData.m */,
+				C65F8D73187F8CFC00C3B536 /* EJBindingMaterial.h */,
+				C65F8D74187F8CFC00C3B536 /* EJBindingMaterial.m */,
 				414DBF7217F97CBD00DA3A50 /* EJBindingTextMetrics.h */,
 				414DBF7317F97CBD00DA3A50 /* EJBindingTextMetrics.m */,
 				414DBF7417F97CBD00DA3A50 /* EJCanvas2DTypes.h */,
@@ -545,6 +555,8 @@
 				414DBF8417F97CBD00DA3A50 /* EJGLProgram2D.m */,
 				414DBF8517F97CBD00DA3A50 /* EJGLProgram2DRadialGradient.h */,
 				414DBF8617F97CBD00DA3A50 /* EJGLProgram2DRadialGradient.m */,
+				C62FAAAB1887CB17004D57FD /* EJGLProgram2DTint.h */,
+				C62FAAAC1887CB17004D57FD /* EJGLProgram2DTint.m */,
 				414DBF8717F97CBD00DA3A50 /* EJImageData.h */,
 				414DBF8817F97CBD00DA3A50 /* EJImageData.m */,
 				414DBF8917F97CBD00DA3A50 /* EJPath.h */,
@@ -562,6 +574,7 @@
 				414DBF8E17F97CBD00DA3A50 /* Pattern.fsh */,
 				414DBF8F17F97CBD00DA3A50 /* RadialGradient.fsh */,
 				414DBF9017F97CBD00DA3A50 /* Texture.fsh */,
+				C634B8091887B2BE00F07CE1 /* Tint.fsh */,
 				414DBF9117F97CBD00DA3A50 /* Vertex.vsh */,
 			);
 			path = Shaders;
@@ -784,6 +797,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C62FAAAA1887C835004D57FD /* Tint.fsh in Resources */,
 				C6DAF3BD183DE79300F4F624 /* AlphaTexture.fsh in Resources */,
 				C6DAF3BE183DE79300F4F624 /* Flat.fsh in Resources */,
 				C6DAF3BF183DE79300F4F624 /* Pattern.fsh in Resources */,
@@ -901,6 +915,8 @@
 				414DBFC817F97CBD00DA3A50 /* EJBindingImage.m in Sources */,
 				414DBFC917F97CBD00DA3A50 /* EJCanvasContext.m in Sources */,
 				414DBFCA17F97CBD00DA3A50 /* EJSharedTextureCache.m in Sources */,
+				C65F8D75187F8CFC00C3B536 /* EJBindingMaterial.m in Sources */,
+				C62FAAAD1887CB17004D57FD /* EJGLProgram2DTint.m in Sources */,
 				414DBFCB17F97CBD00DA3A50 /* EJTexture.m in Sources */,
 				414DBFCC17F97CBD00DA3A50 /* EJTextureStorage.m in Sources */,
 				414DBFCD17F97CBD00DA3A50 /* EJBindingCanvasContextWebGL.m in Sources */,
