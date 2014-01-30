@@ -15,6 +15,18 @@ canvas.height = h;
 
 var ctx = canvas.getContext('2d');
 
+var img = new Image();
+var imageLoaded = false;
+img.onload = function () {
+    imageLoaded = true;
+};
+img.src = "assets/canvas/textures/tint/fireball.png";
+
+var material = new Ejecta.Material();
+material.shader = "Tint";
+material.setUniform("tintAdd", "glUniform4f", [ 0.0, 0.0, 0.4, 0.0 ] );
+material.setUniform("tintMul", "glUniform4f", [ 0.5, 0.5, 2.0, 1.0 ] );
+img.material = material;
 
 var curves = [];
 for( var i = 0; i < 200; i++ ) {
@@ -53,6 +65,11 @@ var animate = function() {
 		ctx.strokeStyle = curve.color;
 		ctx.stroke();
 	}
+
+    if(imageLoaded) {
+        ctx.drawImage(img, 0, 0);
+    }
+
 };
 
 
