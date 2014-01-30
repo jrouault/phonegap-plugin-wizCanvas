@@ -254,16 +254,10 @@ const EJCompositeOperationFunc EJCompositeOperationFuncs[] = {
 
     [self setProgram:currentMaterial.program];
     
-    // TODO: Benchmark extracting value from pointer with NSValue
-    for (id key in currentMaterial.program.additionalUniforms) {
-        NSValue *uniformValue = [currentMaterial.uniforms objectForKey:key];
-        if (uniformValue) {
-            NSValue *locationValue = [currentMaterial.program.additionalUniforms objectForKey:key];
-            GLint *location;
-            [locationValue getValue:&location];
-            EJUniform *uniform;
-            [uniformValue getValue:&uniform];
-            uniform->glUniformFunction(*location, uniform->count, uniform->values);
+    EJUniform *uniforms = [currentMaterial uniforms];
+    for (int i = 0; i < [currentMaterial uniformsCount]; ++i) {
+        if (uniforms[i].glUniformFunction) {
+            uniforms[i].glUniformFunction(uniforms[i].location, uniforms[i].count, uniforms[i].values);
         }
     }
 }
