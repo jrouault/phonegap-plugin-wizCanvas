@@ -6,5 +6,5 @@ uniform mediump vec4 tintAdd;
 uniform mediump vec4 tintMul;
 
 void main() {
-    gl_FragColor = texture2D(texture, vUv) * vColor * tintMul + tintAdd * texture2D(texture, vUv).a;
+    gl_FragColor = (texture2D(texture, vUv) * tintMul + tintAdd * texture2D(texture, vUv).a) * vColor;
 }

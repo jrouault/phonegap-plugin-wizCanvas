@@ -256,13 +256,13 @@ const EJCompositeOperationFunc EJCompositeOperationFuncs[] = {
     
     // TODO: Benchmark extracting value from pointer with NSValue
     for (id key in currentMaterial.program.additionalUniforms) {
-        NSValue *value = [currentMaterial.uniforms objectForKey:key];
-        if (value) {
+        NSValue *uniformValue = [currentMaterial.uniforms objectForKey:key];
+        if (uniformValue) {
             NSValue *locationValue = [currentMaterial.program.additionalUniforms objectForKey:key];
             GLint *location;
             [locationValue getValue:&location];
             EJUniform *uniform;
-            [value getValue:&uniform];
+            [uniformValue getValue:&uniform];
             uniform->glUniformFunction(*location, uniform->count, uniform->values);
         }
     }
