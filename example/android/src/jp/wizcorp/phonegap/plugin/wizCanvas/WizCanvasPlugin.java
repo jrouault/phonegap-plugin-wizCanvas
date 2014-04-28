@@ -75,6 +75,7 @@ public class WizCanvasPlugin extends CordovaPlugin {
                             try {
                                 final CordovaWebView _targetView = (CordovaWebView) viewList.get(targetView);
                                 // __triggerMessageEvent: function(origin, target, data, type) { }
+                                message = encodeMessage(message);
                                 final String js = String.format(
                                         "window.wizCanvasMessenger.__triggerMessageEvent('%s', '%s', '%s', '%s');",
                                         source,
@@ -136,7 +137,7 @@ public class WizCanvasPlugin extends CordovaPlugin {
                     // Send message to canvas
                     Log.d(TAG, "sending to canvas...");
                     String data2send = msgData[2];
-                    data2send = data2send.replace("\\", "\\\\").replace("'", "\\'");
+                    data2send = encodeMessage(data2send);
 
                     if (canvas != null) {
                         canvas.postMessage(msgData[1], String.format("%s", data2send), msgData[3]);
@@ -610,5 +611,9 @@ public class WizCanvasPlugin extends CordovaPlugin {
         webView.setLayoutParams(layoutParams);
 
         Log.d(TAG, "new layout -> width: " + layoutParams.width + " - height: " + layoutParams.height + " - margins: " + layoutParams.leftMargin + "," + layoutParams.topMargin + "," + layoutParams.rightMargin + "," + layoutParams.bottomMargin);
+    }
+    
+    private String encodeMessage(String message) {
+    	return message.replace("\\", "\\\\").replace("'", "\\'");
     }
 }
