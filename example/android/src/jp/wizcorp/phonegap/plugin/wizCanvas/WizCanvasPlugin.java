@@ -136,7 +136,7 @@ public class WizCanvasPlugin extends CordovaPlugin {
                     // Send message to canvas
                     Log.d(TAG, "sending to canvas...");
                     String data2send = msgData[2];
-                    data2send = data2send.replace("'", "\\'");
+                    data2send = data2send.replace("\\", "\\\\").replace("'", "\\'");
 
                     if (canvas != null) {
                         canvas.postMessage(msgData[1], String.format("%s", data2send), msgData[3]);
